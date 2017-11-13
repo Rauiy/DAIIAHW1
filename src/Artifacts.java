@@ -1,17 +1,18 @@
+import java.io.Serializable;
 import java.util.Date;
 
 /**
  * Created by Steven on 2017-11-13.
  */
-public class Artifacts {
-    private int id;
+public class Artifacts implements Serializable{
+    private String id;
     private String name;
     private String creator;
     private String dateOfCreation;
     private String placeOfCreation;
     private String genre;
 
-    public Artifacts(int id, String name, String creator, String dateOfCreation, String placeOfCreation, String genre) {
+    public Artifacts(String id, String name, String creator, String dateOfCreation, String placeOfCreation, String genre) {
         this.id = id;
         this.name = name;
         this.creator = creator;
@@ -20,7 +21,7 @@ public class Artifacts {
         this.genre = genre;
     }
 
-    public int getId() {
+    public String getId() {
         return id;
     }
 
