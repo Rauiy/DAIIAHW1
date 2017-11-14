@@ -1,6 +1,9 @@
 
 import jade.core.Agent;
 import jade.core.behaviours.CyclicBehaviour;
+import jade.core.behaviours.OneShotBehaviour;
+import jade.core.behaviours.ParallelBehaviour;
+import jade.core.behaviours.SequentialBehaviour;
 import jade.domain.DFService;
 import jade.domain.FIPAAgentManagement.DFAgentDescription;
 import jade.domain.FIPAAgentManagement.ServiceDescription;
@@ -9,11 +12,10 @@ import jade.domain.introspection.AddedBehaviour;
 import jade.lang.acl.ACLMessage;
 import jade.lang.acl.MessageTemplate;
 import jade.lang.acl.UnreadableException;
+import jade.proto.SimpleAchieveREResponder;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
+import java.util.*;
 
 /**
  * Created by Steven on 2017-11-13.
@@ -22,18 +24,33 @@ public class CuratorAgent extends Agent {
     private HashMap<String,Artifact> artifactsList;
     // The GUI by means of which the user can add books in the catalogue
     private CuratorGui myGui;
+    private String[] genres = {"mountains","flowers","animals","lakes","plants","environment","cats","dogs"};
     protected void setup(){
         System.out.println("Curator Agent initializing");
         // Initiate ArtifactList
 
         artifactsList = new HashMap<String, Artifact>();
-        updateArtifacts("asd", "asd", 1843, "asd","asd" );
-        updateArtifacts("as33d", "ased", 1853, "asd","asd" );
-        updateArtifacts("ased", "asde", 1847, "asd","asd" );
+
+        SequentialBehaviour sb = new SequentialBehaviour();
+        sb.addSubBehaviour(new OneShotBehaviour() {
+            @Override
+            public void action() {
+                Random r = new Random();
+                for(int i = 0; i < 100; i++){
+
+                    updateArtifacts("name" + i, "creator" + i, r.nextInt(2000), "city"+i,genres[r.nextInt(genres.length)]);
+                }
+            }
+        });
+
         // Create and show the GUI
         myGui = new CuratorGui(this);
         myGui.showGui();
 
+        registerAtDF();
+    }
+
+    public void registerAtDF(){
         // Register the curator service in the yellow pages
         DFAgentDescription dfd = new DFAgentDescription();
         dfd.setName(getAID());
@@ -47,18 +64,12 @@ public class CuratorAgent extends Agent {
         catch (FIPAException fe) {
             fe.printStackTrace();
         }
-
-        // Initiate proposal server
-        addBehaviour(new ArtifactProposeServer());
-
-        // Initiate request handler rerver
-        addBehaviour(new ArtifactRequestHandlerServer());
     }
 
     public void updateArtifacts(String name, String creator, int date, String location, String genre){
         String id = name+creator+date;
         artifactsList.put(id, new Artifact(id,name, creator, date,location,genre));
-        System.out.println(artifactsList.toString());
+        //System.out.println(artifactsList.toString());
     }
 
     // Put agent clean-up operations here
@@ -77,7 +88,56 @@ public class CuratorAgent extends Agent {
     }
 
 
-    private class ArtifactProposeServer extends CyclicBehaviour{
+    private class ArtifactRequestHandler extends SimpleAchieveREResponder{
+        public ArtifactRequestHandler(Agent a, MessageTemplate mt) {
+            super(a, mt);
+        }
+
+        protected ACLMessage prepareResultNotification(ACLMessage request, ACLMessage response){
+            ACLMessage reply = request.createReply();
+            reply.setPerformative(ACLMessage.PROPOSE);
+            try {
+                reply.setContentObject(new ArrayList<String>(Arrays.asList(genres)));
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+
+            return reply;
+        }
+    }
+
+    private class DetailedArtifactRequestHandler extends SimpleAchieveREResponder{
+
+        public DetailedArtifactRequestHandler(Agent a, MessageTemplate mt) {
+            super(a, mt);
+        }
+
+        protected ACLMessage prepareResultNotification(ACLMessage request, ACLMessage response){
+            ArrayList<String> artifactIds = null;
+
+            ACLMessage reply = request.createReply();
+            reply.setPerformative(ACLMessage.PROPOSE);
+            try {
+                artifactIds = (ArrayList<String>) request.getContentObject();
+                ArrayList<Artifact> detailedList = new ArrayList();
+                for(String id: artifactIds){
+                    Artifact tmp = artifactsList.get(id);
+                    if(tmp != null)
+                        detailedList.add(tmp);
+                }
+                reply.setContentObject(detailedList);
+            } catch (UnreadableException e) {
+                e.printStackTrace();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+
+            return reply;
+        }
+    }
+
+    /*
+       private class ArtifactProposeServer extends CyclicBehaviour{
 
         @Override
         public void action() {
@@ -154,6 +214,6 @@ public class CuratorAgent extends Agent {
             else
             block();
         }
-    }
+    }*/
 }
 
