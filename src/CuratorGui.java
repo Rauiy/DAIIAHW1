@@ -68,7 +68,7 @@ class CuratorGui extends JFrame {
 				try {
 					String title = titleField.getText().trim();
 					String creator = creatorField.getText().trim();
-					String date = crationField.getText().trim();
+					int date = Integer.parseInt(crationField.getText().trim());
 					String loc = locationField.getText().trim();
 					String genre = genreField.getText().trim();
 					myAgent.updateArtifacts(title, creator, date, loc, genre);

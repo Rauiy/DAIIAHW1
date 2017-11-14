@@ -8,15 +8,15 @@ public class Artifact implements Serializable{
     private String id;
     private String name;
     private String creator;
-    private String dateOfCreation;
+    private int centuryOfCreation;
     private String placeOfCreation;
     private String genre;
 
-    public Artifact(String id, String name, String creator, String dateOfCreation, String placeOfCreation, String genre) {
+    public Artifact(String id, String name, String creator, int centuryOfCreation, String placeOfCreation, String genre) {
         this.id = id;
         this.name = name;
         this.creator = creator;
-        this.dateOfCreation = dateOfCreation;
+        this.centuryOfCreation = centuryOfCreation;
         this.placeOfCreation = placeOfCreation;
         this.genre = genre;
     }
@@ -33,8 +33,8 @@ public class Artifact implements Serializable{
         return creator;
     }
 
-    public String getDateOfCreation() {
-        return dateOfCreation;
+    public int getCenturyOfCreation() {
+        return centuryOfCreation;
     }
 
     public String getPlaceOfCreation() {
@@ -51,7 +51,7 @@ public class Artifact implements Serializable{
                 "id='" + id + '\'' +
                 ", name='" + name + '\'' +
                 ", creator='" + creator + '\'' +
-                ", dateOfCreation='" + dateOfCreation + '\'' +
+                ", dateOfCreation='" + centuryOfCreation + '\'' +
                 ", placeOfCreation='" + placeOfCreation + '\'' +
                 ", genre='" + genre + '\'' +
                 '}';

@@ -140,7 +140,7 @@ public class ProfilerAgent extends Agent
         });
     }
 
-    private AID findAgents(Agent myAgent, DFAgentDescription template){
+    static public AID findAgents(Agent myAgent, DFAgentDescription template){
         AID tmp = null;
         try {
             DFAgentDescription[] result = DFService.search(myAgent, template);
@@ -168,6 +168,7 @@ public class ProfilerAgent extends Agent
         public void action() {
             switch (step){
                 case 0:
+                    System.out.println("Call for tour proposal");
                     // Call for a tour proposal
                     ACLMessage cfp = new ACLMessage(ACLMessage.CFP);
 
@@ -195,9 +196,9 @@ public class ProfilerAgent extends Agent
 
                         if (reply.getPerformative() == ACLMessage.PROPOSE) {
                             // This is an offer
-
                             try {
                                 artifactIds = (ArrayList<String>) reply.getContentObject();
+                                System.out.println("Received proposal: " + artifactIds.toString());
                             } catch (UnreadableException e) {
                                 e.printStackTrace();
                             }
@@ -211,7 +212,8 @@ public class ProfilerAgent extends Agent
                     break;
                 case 2:
                     // Request for artifacts
-                    ACLMessage request = new ACLMessage(ACLMessage.REQUEST);
+                    System.out.println("Request proposed artifacts");
+                    ACLMessage request = new ACLMessage(ACLMessage.REQUEST_WHEN);
 
                     try {
                         request.setContentObject(artifactIds);
@@ -234,11 +236,12 @@ public class ProfilerAgent extends Agent
                     if (artRep != null) {
                         // Reply received
 
-                        if (artRep.getPerformative() == ACLMessage.INFORM) {
+                        if (artRep.getPerformative() == ACLMessage.CONFIRM) {
                             // This is an offer
 
                             try {
                                 artifacts = (ArrayList<Artifact>) artRep.getContentObject();
+                                System.out.println("Received artifact info: " + artifacts.toString());
                             } catch (UnreadableException e) {
                                 e.printStackTrace();
                             }
@@ -251,7 +254,13 @@ public class ProfilerAgent extends Agent
                     break;
                 case 4:
                     // Add artifacts to visited
+                    System.out.println("Add to visited");
                     visited.addAll(artifacts);
+
+                    System.out.println("Visited list");
+                    for(Artifact a: visited){
+                        System.out.println();
+                    }
                     step = 5;
                     break;
             }

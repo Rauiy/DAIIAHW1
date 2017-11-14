@@ -53,7 +53,7 @@ public class CuratorAgent extends Agent {
         addBehaviour(new ArtifactRequestHandlerServer());
     }
 
-    public void updateArtifacts(String name, String creator, String date, String location, String genre){
+    public void updateArtifacts(String name, String creator, int date, String location, String genre){
         String id = name+creator+date;
         artifactsList.put(id, new Artifact(id,name, creator, date,location,genre));
         System.out.println(artifactsList.toString());
@@ -79,13 +79,15 @@ public class CuratorAgent extends Agent {
 
         @Override
         public void action() {
-            MessageTemplate mt = MessageTemplate.MatchPerformative(ACLMessage.CFP);
+            MessageTemplate mt = MessageTemplate.MatchPerformative(ACLMessage.REQUEST);
             ACLMessage msg = this.myAgent.receive(mt);
+
             if(msg != null){
                 ACLMessage reply = msg.createReply();
+                System.out.println("Received a request for all artifacts");
                 try {
                     reply.setContentObject(artifactsList);
-                    reply.setPerformative(ACLMessage.PROPOSE);
+                    reply.setPerformative(ACLMessage.CONFIRM);
                 } catch (IOException e) {
                     e.printStackTrace();
                     reply.setContent("Failed to serialize list of artifacts");
@@ -100,19 +102,22 @@ public class CuratorAgent extends Agent {
     }
 
     private class ArtifactRequestHandlerServer extends CyclicBehaviour{
-
+        ArrayList<String> artifactIds;
         @Override
         public void action() {
-            MessageTemplate mt = MessageTemplate.MatchPerformative(ACLMessage.REQUEST);
+            MessageTemplate mt = MessageTemplate.MatchPerformative(ACLMessage.REQUEST_WHEN);
             ACLMessage msg = this.myAgent.receive(mt);
             if(msg != null){
-                String content = msg.getContent();
+                try {
+                    artifactIds =(ArrayList<String>) msg.getContentObject();
+                } catch (UnreadableException e) {
+                    e.printStackTrace();
+                }
                 ArrayList<Artifact> infoList = new ArrayList();
-                String[] artifacts = content.split(",");
                 ACLMessage reply = msg.createReply();
-
-                if(artifacts.length > 0) {
-                    for (String s : artifacts) {
+                System.out.println("Received a request for: " + artifactIds.toString());
+                if(artifactIds.size() > 0) {
+                    for (String s : artifactIds) {
                         Artifact tmp = artifactsList.get(s);
                         if(tmp != null)
                             infoList.add(tmp);
@@ -121,7 +126,7 @@ public class CuratorAgent extends Agent {
                     if(infoList.size() != 0) {
                         try {
                             reply.setContentObject(infoList);
-                            reply.setPerformative(ACLMessage.INFORM);
+                            reply.setPerformative(ACLMessage.CONFIRM);
                         } catch (IOException e) {
                             e.printStackTrace();
                             reply.setContent("Failed to serialize list of artifacts");
