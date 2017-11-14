@@ -53,16 +53,22 @@ public class CuratorAgent extends Agent {
                 String[] artifacts = content.split(",");
                 ACLMessage reply = msg.createReply();
 
-                if(true || artifacts.length > 0) {
-                    /*for (String s : artifacts) {
+                if(artifacts.length > 0) {
+                    for (String s : artifacts) {
                         Artifacts tmp = artifactsList.get(s);
                         if(tmp != null)
                             infoList.add(tmp);
-                    }*/
+                    }
 
-                    if(true ||infoList.size() != 0) {
-                        reply.setPerformative(ACLMessage.INFORM);
-                        reply.setContent("List of specific artifacts");
+                    if(infoList.size() != 0) {
+                        try {
+                            reply.setContentObject(infoList);
+                            reply.setPerformative(ACLMessage.INFORM);
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                            reply.setContent("fail");
+                            reply.setPerformative();
+                        }
                     }
                     else
                         reply.setPerformative(ACLMessage.FAILURE);
