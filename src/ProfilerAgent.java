@@ -266,7 +266,7 @@ public class ProfilerAgent extends Agent
 
                     System.out.println(getLocalName() + ": Visited list");
                     for(Artifact a: visited){
-                        System.out.println();
+                        System.out.println(a);
                     }
                     step = 5;
                     break;
