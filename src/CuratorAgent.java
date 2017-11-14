@@ -27,7 +27,9 @@ public class CuratorAgent extends Agent {
         // Initiate ArtifactList
 
         artifactsList = new HashMap<String, Artifact>();
-
+        updateArtifacts("asd", "asd", 1843, "asd","asd" );
+        updateArtifacts("as33d", "ased", 1853, "asd","asd" );
+        updateArtifacts("ased", "asde", 1847, "asd","asd" );
         // Create and show the GUI
         myGui = new CuratorGui(this);
         myGui.showGui();
