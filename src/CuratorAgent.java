@@ -1,5 +1,10 @@
 import jade.core.Agent;
 import jade.core.behaviours.CyclicBehaviour;
+import jade.domain.DFService;
+import jade.domain.FIPAAgentManagement.DFAgentDescription;
+import jade.domain.FIPAAgentManagement.ServiceDescription;
+import jade.domain.FIPAException;
+import jade.domain.introspection.AddedBehaviour;
 import jade.lang.acl.ACLMessage;
 import jade.lang.acl.MessageTemplate;
 import jade.lang.acl.UnreadableException;
@@ -17,12 +22,30 @@ public class CuratorAgent extends Agent {
 
     protected void setup(){
         System.out.println("Curator Agent initializing");
-        // Initiate Artifactlist
+        // Initiate ArtifactList
 
-        // Initiate Behaviours/Servers
+        // Register the curator service in the yellow pages
+        DFAgentDescription dfd = new DFAgentDescription();
+        dfd.setName(getAID());
+        ServiceDescription sd = new ServiceDescription();
+        sd.setType("Artifact-provider");
+        sd.setName("JADE-museum");
+        dfd.addServices(sd);
+        try {
+            DFService.register(this, dfd);
+        }
+        catch (FIPAException fe) {
+            fe.printStackTrace();
+        }
+
+        // Initiate proposal server
+        addBehaviour(new ArtifactProposeServer());
+
+        // Initiate request handler rerver
+        addBehaviour(new ArtifactRequestHandlerServer());
     }
 
-    private class ArtifactRequestServer extends CyclicBehaviour{
+    private class ArtifactProposeServer extends CyclicBehaviour{
 
         @Override
         public void action() {
@@ -30,8 +53,6 @@ public class CuratorAgent extends Agent {
             ACLMessage msg = this.myAgent.receive(mt);
             if(msg != null){
                 ACLMessage reply = msg.createReply();
-
-
                 try {
                     reply.setContentObject(artifactsList);
                     reply.setPerformative(ACLMessage.PROPOSE);
@@ -48,7 +69,7 @@ public class CuratorAgent extends Agent {
         }
     }
 
-    private class SpecificArtifactRequestServer extends CyclicBehaviour{
+    private class ArtifactRequestHandlerServer extends CyclicBehaviour{
 
         @Override
         public void action() {
