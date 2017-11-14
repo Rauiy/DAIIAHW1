@@ -32,12 +32,7 @@ public class CuratorAgent extends Agent {
                 ACLMessage reply = msg.createReply();
 
                 reply.setPerformative(ACLMessage.INFORM);
-                try {
-                    reply.setContentObject(artifactsList);
-
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
+                reply.setContent("List of artifacts");
 
                 myAgent.send(reply);
             }
@@ -58,20 +53,16 @@ public class CuratorAgent extends Agent {
                 String[] artifacts = content.split(",");
                 ACLMessage reply = msg.createReply();
 
-                if(artifacts.length > 0) {
-                    for (String s : artifacts) {
+                if(true || artifacts.length > 0) {
+                    /*for (String s : artifacts) {
                         Artifacts tmp = artifactsList.get(s);
                         if(tmp != null)
                             infoList.add(tmp);
-                    }
+                    }*/
 
-                    if(infoList.size() != 0) {
+                    if(true ||infoList.size() != 0) {
                         reply.setPerformative(ACLMessage.INFORM);
-                        try {
-                            reply.setContentObject(infoList);
-                        } catch (IOException e) {
-                            e.printStackTrace();
-                        }
+                        reply.setContent("List of specific artifacts");
                     }
                     else
                         reply.setPerformative(ACLMessage.FAILURE);
