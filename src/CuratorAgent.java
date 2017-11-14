@@ -43,9 +43,12 @@ public class CuratorAgent extends Agent {
             }
         });
 
-        // Create and show the GUI
-        myGui = new CuratorGui(this);
-        myGui.showGui();
+        ParallelBehaviour pb = new ParallelBehaviour();
+        pb.addSubBehaviour(new ArtifactRequestHandler(this,  MessageTemplate.MatchPerformative(ACLMessage.REQUEST)));
+        pb.addSubBehaviour(new DetailedArtifactRequestHandler(this, MessageTemplate.MatchPerformative(ACLMessage.REQUEST_WHEN)));
+        sb.addSubBehaviour(pb);
+
+        addBehaviour(sb);
 
         registerAtDF();
     }
