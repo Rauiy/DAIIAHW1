@@ -44,4 +44,16 @@ public class Artifact implements Serializable{
     public String getGenre() {
         return genre;
     }
+
+    @Override
+    public String toString() {
+        return "Artifact{" +
+                "id='" + id + '\'' +
+                ", name='" + name + '\'' +
+                ", creator='" + creator + '\'' +
+                ", dateOfCreation='" + dateOfCreation + '\'' +
+                ", placeOfCreation='" + placeOfCreation + '\'' +
+                ", genre='" + genre + '\'' +
+                '}';
+    }
 }

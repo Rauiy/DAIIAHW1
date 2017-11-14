@@ -1,3 +1,4 @@
+
 import jade.core.Agent;
 import jade.core.behaviours.CyclicBehaviour;
 import jade.domain.DFService;
@@ -19,10 +20,17 @@ import java.util.List;
  */
 public class CuratorAgent extends Agent {
     private HashMap<String,Artifact> artifactsList;
-
+    // The GUI by means of which the user can add books in the catalogue
+    private CuratorGui myGui;
     protected void setup(){
         System.out.println("Curator Agent initializing");
         // Initiate ArtifactList
+
+        artifactsList = new HashMap<String, Artifact>();
+
+        // Create and show the GUI
+        myGui = new CuratorGui(this);
+        myGui.showGui();
 
         // Register the curator service in the yellow pages
         DFAgentDescription dfd = new DFAgentDescription();
@@ -44,6 +52,28 @@ public class CuratorAgent extends Agent {
         // Initiate request handler rerver
         addBehaviour(new ArtifactRequestHandlerServer());
     }
+
+    public void updateArtifacts(String name, String creator, String date, String location, String genre){
+        String id = name+creator+date;
+        artifactsList.put(id, new Artifact(id,name, creator, date,location,genre));
+        System.out.println(artifactsList.toString());
+    }
+
+    // Put agent clean-up operations here
+    protected void takeDown() {
+        // Deregister from the yellow pages
+        try {
+            DFService.deregister(this);
+        }
+        catch (FIPAException fe) {
+            fe.printStackTrace();
+        }
+        // Close the GUI
+        myGui.dispose();
+        // Printout a dismissal message
+        System.out.println("Seller-agent "+getAID().getName()+" terminating.");
+    }
+
 
     private class ArtifactProposeServer extends CyclicBehaviour{
 

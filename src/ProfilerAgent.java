@@ -168,6 +168,7 @@ public class ProfilerAgent extends Agent
         public void action() {
             switch (step){
                 case 0:
+                    // Call for a tour proposal
                     ACLMessage cfp = new ACLMessage(ACLMessage.CFP);
 
                     try {
@@ -187,6 +188,7 @@ public class ProfilerAgent extends Agent
                     step = 1;
                     break;
                 case 1:
+                    // Receive the tour proposal
                     ACLMessage reply = myAgent.receive(mt);
                     if (reply != null) {
                         // Reply received
@@ -208,6 +210,7 @@ public class ProfilerAgent extends Agent
                     }
                     break;
                 case 2:
+                    // Request for artifacts
                     ACLMessage request = new ACLMessage(ACLMessage.REQUEST);
 
                     try {
@@ -226,6 +229,7 @@ public class ProfilerAgent extends Agent
                     step = 3;
                     break;
                 case 3:
+                    // Receive artifacts
                     ACLMessage artRep = myAgent.receive(mt);
                     if (artRep != null) {
                         // Reply received
@@ -246,6 +250,7 @@ public class ProfilerAgent extends Agent
                     }
                     break;
                 case 4:
+                    // Add artifacts to visited
                     visited.addAll(artifacts);
                     step = 5;
                     break;
