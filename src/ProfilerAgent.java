@@ -141,11 +141,11 @@ public class ProfilerAgent extends Agent
         AID tmp = null;
         try {
             DFAgentDescription[] result = DFService.search(myAgent, template);
-            System.out.print("Found the following agents: ");
+           // System.out.print("Found the following agents: ");
             // Should only exist one agent of each, so take the first one
             if(result.length > 0) {
                 tmp = result[0].getName();
-                System.out.println(tmp);
+             //   System.out.println(tmp);
             }
             else
                 System.out.println("none");

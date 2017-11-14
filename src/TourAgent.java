@@ -44,7 +44,7 @@ public class TourAgent extends Agent {
         template.addServices(sd);
 
         while(curator == null) {
-            System.out.println(getLocalName() + ": No curator found...");
+           // System.out.println(getLocalName() + ": No curator found...");
             curator = ProfilerAgent.findAgents(this, template);
         }
 
