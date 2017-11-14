@@ -31,8 +31,15 @@ public class CuratorAgent extends Agent {
             if(msg != null){
                 ACLMessage reply = msg.createReply();
 
-                reply.setPerformative(ACLMessage.INFORM);
-                reply.setContent("List of artifacts");
+
+                try {
+                    reply.setContentObject(artifactsList);
+                    reply.setPerformative(ACLMessage.PROPOSE);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                    reply.setContent("Failed to serialize list of artifacts");
+                    reply.setPerformative(ACLMessage.FAILURE);
+                }
 
                 myAgent.send(reply);
             }
@@ -66,14 +73,17 @@ public class CuratorAgent extends Agent {
                             reply.setPerformative(ACLMessage.INFORM);
                         } catch (IOException e) {
                             e.printStackTrace();
-                            reply.setContent("fail");
-                            reply.setPerformative();
+                            reply.setContent("Failed to serialize list of artifacts");
+                            reply.setPerformative(ACLMessage.FAILURE);
                         }
                     }
-                    else
+                    else{
+                        reply.setContent("Failed to find any matching artifact");
                         reply.setPerformative(ACLMessage.FAILURE);
+                    }
                 }
                 else{
+                    reply.setContent("No artifact was requested");
                     reply.setPerformative(ACLMessage.REFUSE);
                 }
                 myAgent.send(reply);
