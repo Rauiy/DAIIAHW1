@@ -80,13 +80,12 @@ public class CuratorAgent extends Agent {
         @Override
         public void action() {
             MessageTemplate mt = MessageTemplate.MatchPerformative(ACLMessage.REQUEST);
-            ACLMessage msg = this.myAgent.receive(mt);
-
+            ACLMessage msg = myAgent.receive(mt);
             if(msg != null){
                 ACLMessage reply = msg.createReply();
                 System.out.println("Received a request for all artifacts");
                 try {
-                    reply.setContentObject(artifactsList);
+                    reply.setContentObject(new ArrayList<Artifact>(artifactsList.values()));
                     reply.setPerformative(ACLMessage.CONFIRM);
                 } catch (IOException e) {
                     e.printStackTrace();
@@ -106,27 +105,33 @@ public class CuratorAgent extends Agent {
         @Override
         public void action() {
             MessageTemplate mt = MessageTemplate.MatchPerformative(ACLMessage.REQUEST_WHEN);
-            ACLMessage msg = this.myAgent.receive(mt);
+            ACLMessage msg = myAgent.receive(mt);
             if(msg != null){
                 try {
                     artifactIds =(ArrayList<String>) msg.getContentObject();
+                    if(artifactIds == null || artifactIds.size() <= 0){
+                            return;
+                    }
                 } catch (UnreadableException e) {
                     e.printStackTrace();
                 }
                 ArrayList<Artifact> infoList = new ArrayList();
                 ACLMessage reply = msg.createReply();
-                System.out.println("Received a request for: " + artifactIds.toString());
+
                 if(artifactIds.size() > 0) {
+                    System.out.println("Received a request for: " + artifactIds.toString());
                     for (String s : artifactIds) {
                         Artifact tmp = artifactsList.get(s);
-                        if(tmp != null)
+                        if(tmp != null) {
                             infoList.add(tmp);
+                        }
                     }
 
                     if(infoList.size() != 0) {
                         try {
                             reply.setContentObject(infoList);
                             reply.setPerformative(ACLMessage.CONFIRM);
+                            System.out.println("Artifacts found");
                         } catch (IOException e) {
                             e.printStackTrace();
                             reply.setContent("Failed to serialize list of artifacts");

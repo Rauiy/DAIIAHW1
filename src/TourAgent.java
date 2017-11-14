@@ -40,14 +40,12 @@ public class TourAgent extends Agent {
 
         template = new DFAgentDescription();
         sd = new ServiceDescription();
-        sd.setType("Artifact-Provider");
+        sd.setType("Artifact-provider");
         template.addServices(sd);
 
-        curator = ProfilerAgent.findAgents(this, template);
-
-        if(curator == null) {
-            System.out.println("No curator found...");
-            return;
+        while(curator == null) {
+            System.out.println(getLocalName() + ": No curator found...");
+            curator = ProfilerAgent.findAgents(this, template);
         }
 
         addBehaviour(new InterfaceServer());
@@ -70,7 +68,7 @@ public class TourAgent extends Agent {
                     if(msg != null) {
                         try {
                             personalInfo = (ProfilerAgent.personalInfo) msg.getContentObject();
-                            System.out.println("Call for proposal received");
+                            System.out.println(getLocalName() + ": Call for proposal received");
                         } catch (UnreadableException e) {
                             e.printStackTrace();
                         }
@@ -83,9 +81,10 @@ public class TourAgent extends Agent {
 
                     break;
                 case 1:
-                    System.out.println("Sending request for artifacts");
+                    System.out.println(getLocalName() + ": Sending request for artifacts");
                     ACLMessage cfp = new ACLMessage(ACLMessage.REQUEST);
 
+                    cfp.setContent("Request");
                     cfp.addReceiver(curator);
                     cfp.setConversationId("Artifact-provider");
                     cfp.setReplyWith("cfp"+System.currentTimeMillis());
@@ -105,7 +104,7 @@ public class TourAgent extends Agent {
 
                             try {
                                 artifacts = (ArrayList<Artifact>) reply.getContentObject();
-                                System.out.println("Artifacts received");
+                                System.out.println(getLocalName() + ": Artifacts received");
                             } catch (UnreadableException e) {
                                 e.printStackTrace();
                             }
@@ -117,7 +116,7 @@ public class TourAgent extends Agent {
                     }
                     break;
                 case 3:
-                    System.out.println("Creating a personalized tour");
+                    System.out.println(getLocalName() + ": Creating a personalized tour");
                     int century = 0;
                     switch (personalInfo.getAge()/10) {
                         case 0:
@@ -151,7 +150,7 @@ public class TourAgent extends Agent {
                     step = 4;
                     break;
                 case 4:
-                    System.out.println("Proposing the personalized tour");
+                    System.out.println(getLocalName() + ": Proposing the personalized tour");
                     if(artifactIds.size() > 0) {
                         try {
                             requestReply.setContentObject(artifactIds);
