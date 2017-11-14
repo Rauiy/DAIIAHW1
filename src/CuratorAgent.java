@@ -96,6 +96,7 @@ public class CuratorAgent extends Agent {
             super(a, mt);
         }
 
+        @Override
         protected ACLMessage prepareResultNotification(ACLMessage request, ACLMessage response){
             ACLMessage reply = request.createReply();
             reply.setPerformative(ACLMessage.PROPOSE);
@@ -115,6 +116,7 @@ public class CuratorAgent extends Agent {
             super(a, mt);
         }
 
+        @Override
         protected ACLMessage prepareResultNotification(ACLMessage request, ACLMessage response){
             ArrayList<String> artifactIds = null;
 
