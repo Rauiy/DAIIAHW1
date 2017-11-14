@@ -5,12 +5,14 @@ import jade.core.behaviours.SimpleBehaviour;
 import jade.core.behaviours.TickerBehaviour;
 import jade.lang.acl.ACLMessage;
 import jade.lang.acl.MessageTemplate;
+import jade.lang.acl.UnreadableException;
 import jdk.nashorn.internal.ir.debug.JSONWriter;
 import jdk.nashorn.internal.parser.JSONParser;
 import jdk.nashorn.internal.runtime.JSONFunctions;
 
 import java.io.IOException;
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.List;
 
 public class ProfilerAgent extends Agent
@@ -45,13 +47,14 @@ public class ProfilerAgent extends Agent
         }
     }
 
-    private List<String> visited;
+    private List<Artifact> visited;
     private personalInfo pi;
     protected void setup()
     {
         System.out.println("Hello I am "+ getLocalName());
 
         pi = new personalInfo(21, "student", true, null);
+        visited = new ArrayList<Artifact>();
 
         addBehaviour(new TickerBehaviour(this, 10000) {
             @Override
@@ -65,7 +68,9 @@ public class ProfilerAgent extends Agent
         int step = 0;
         personalInfo pi;
         private MessageTemplate mt; // The template to receive replies
-        TourRequester(personalInfo pi){ this.pi = pi;}
+        ArrayList<String> artifactIds;
+        ArrayList<Artifact> artifacts;
+        TourRequester(personalInfo pi){ this.pi = pi; }
 
         @Override
         public void action() {
@@ -78,10 +83,10 @@ public class ProfilerAgent extends Agent
                     } catch (IOException e) {
                         e.printStackTrace();
                     }
-                    cfp.setConversationId("virtual-tour");
+                    cfp.setConversationId("Tour-Request");
                     cfp.setReplyWith("cfp"+System.currentTimeMillis()); // Unique value
                     myAgent.send(cfp);
-                    mt = MessageTemplate.and(MessageTemplate.MatchConversationId("virtual-tour"),
+                    mt = MessageTemplate.and(MessageTemplate.MatchConversationId("Tour-Request"),
                             MessageTemplate.MatchInReplyTo(cfp.getReplyWith()));
                     step = 1;
                     break;
@@ -92,25 +97,64 @@ public class ProfilerAgent extends Agent
 
                         if (reply.getPerformative() == ACLMessage.PROPOSE) {
                             // This is an offer
+
+                            try {
+                                artifactIds = (ArrayList<String>) reply.getContentObject();
+                            } catch (UnreadableException e) {
+                                e.printStackTrace();
+                            }
                         }
-
-
+                        step = 2;
                     }
                     else {
                         block();
                     }
                     break;
                 case 2:
+                    ACLMessage request = new ACLMessage(ACLMessage.REQUEST);
+
+                    try {
+                        request.setContentObject(artifactIds);
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                    request.setConversationId("Artifact-Request");
+                    request.setReplyWith("request"+System.currentTimeMillis()); // Unique value
+                    myAgent.send(request);
+                    mt = MessageTemplate.and(MessageTemplate.MatchConversationId("Artifact-Request"),
+                            MessageTemplate.MatchInReplyTo(request.getReplyWith()));
+                    step = 3;
                     break;
+                case 3:
+                    ACLMessage artRep = myAgent.receive(mt);
+                    if (artRep != null) {
+                        // Reply received
 
+                        if (artRep.getPerformative() == ACLMessage.INFORM) {
+                            // This is an offer
+
+                            try {
+                                artifacts = (ArrayList<Artifact>) artRep.getContentObject();
+                            } catch (UnreadableException e) {
+                                e.printStackTrace();
+                            }
+                        }
+                        step = 4;
+                    }
+                    else {
+                        block();
+                    }
+                    break;
+                case 4:
+                    visited.addAll(artifacts);
+                    step = 5;
+                    break;
             }
-
-
         }
 
         @Override
         public boolean done() {
-            return false;
+            return (step == 5);
         }
     }
 

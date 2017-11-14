@@ -13,7 +13,7 @@ import java.util.List;
  * Created by Steven on 2017-11-13.
  */
 public class CuratorAgent extends Agent {
-    private HashMap<String,Artifacts> artifactsList;
+    private HashMap<String,Artifact> artifactsList;
 
     protected void setup(){
         System.out.println("Curator Agent initializing");
@@ -56,13 +56,13 @@ public class CuratorAgent extends Agent {
             ACLMessage msg = this.myAgent.receive(mt);
             if(msg != null){
                 String content = msg.getContent();
-                ArrayList<Artifacts> infoList = new ArrayList();
+                ArrayList<Artifact> infoList = new ArrayList();
                 String[] artifacts = content.split(",");
                 ACLMessage reply = msg.createReply();
 
                 if(artifacts.length > 0) {
                     for (String s : artifacts) {
-                        Artifacts tmp = artifactsList.get(s);
+                        Artifact tmp = artifactsList.get(s);
                         if(tmp != null)
                             infoList.add(tmp);
                     }

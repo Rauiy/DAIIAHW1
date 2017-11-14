@@ -4,7 +4,7 @@ import java.util.Date;
 /**
  * Created by Steven on 2017-11-13.
  */
-public class Artifacts implements Serializable{
+public class Artifact implements Serializable{
     private String id;
     private String name;
     private String creator;
@@ -12,7 +12,7 @@ public class Artifacts implements Serializable{
     private String placeOfCreation;
     private String genre;
 
-    public Artifacts(String id, String name, String creator, String dateOfCreation, String placeOfCreation, String genre) {
+    public Artifact(String id, String name, String creator, String dateOfCreation, String placeOfCreation, String genre) {
         this.id = id;
         this.name = name;
         this.creator = creator;
