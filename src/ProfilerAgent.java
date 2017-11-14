@@ -229,7 +229,7 @@ public class ProfilerAgent extends Agent
 
                     request.addReceiver(curatorAgent);
 
-                    request.setConversationId(getLocalName() + ": Artifact-provider");
+                    request.setConversationId("Artifact-provider");
                     request.setReplyWith("request"+System.currentTimeMillis()); // Unique value
                     myAgent.send(request);
                     mt2 = MessageTemplate.and(MessageTemplate.MatchConversationId("Artifact-provider"),
