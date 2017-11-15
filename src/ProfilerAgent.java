@@ -9,6 +9,7 @@ import jade.lang.acl.ACLMessage;
 import jade.lang.acl.MessageTemplate;
 import jade.lang.acl.UnreadableException;
 import jade.proto.SimpleAchieveREInitiator;
+import jade.proto.SubscriptionInitiator;
 import jdk.nashorn.internal.ir.debug.JSONWriter;
 import jdk.nashorn.internal.parser.JSONParser;
 import jdk.nashorn.internal.runtime.JSONFunctions;
@@ -18,6 +19,7 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
+import java.util.Set;
 
 public class ProfilerAgent extends Agent
 {
@@ -66,14 +68,15 @@ public class ProfilerAgent extends Agent
     private List<Artifact> visited;
     private ArrayList<String> artifactIds;
     private ArrayList<Artifact> artifacts;
-    private AID tourAgent;
+    private List<AID> tourAgent;
     private AID curatorAgent;
     private personalInfo pi;
     protected void setup()
     {
         System.out.println("Hello I am "+ getLocalName());
         pi = new personalInfo();
-
+        tourAgent = new ArrayList<AID>();
+        subscribeForTourAgents(); // subscribe for tour agent service
         System.out.println("Profiler initiated with info: " + pi.toString());
         addBehaviour(new TickerBehaviour(this, 10000) {
             @Override
@@ -82,9 +85,9 @@ public class ProfilerAgent extends Agent
                 // Update the list of seller agents
 
 
-                tourAgent = findAgents(myAgent, "Tour-provider");
+                //AID tmp = findAgents(myAgent, "Tour-provider");
 
-                if(tourAgent == null) {
+                if(tourAgent.isEmpty()) {
                     System.out.println(getLocalName() + ": No tour guide found...");
                     return;
                 }
@@ -130,13 +133,38 @@ public class ProfilerAgent extends Agent
         return tmp;
     }
 
+    private void subscribeForTourAgents(){
+        DFAgentDescription template = new DFAgentDescription();
+        ServiceDescription sd = new ServiceDescription();
+        sd.setType("Tour-provider");
+        template.addServices(sd);
+
+        addBehaviour( new SubscriptionInitiator( this,
+                DFService.createSubscriptionMessage( this, getDefaultDF(),
+                        template, null))
+        {
+            protected void handleInform(ACLMessage inform) {
+                try {
+                    DFAgentDescription[] dfds = DFService.decodeNotification(inform.getContent());
+
+                    for(DFAgentDescription df: dfds)
+                        tourAgent.add(df.getName());
+                }
+                catch (FIPAException fe)
+                {
+                    fe.printStackTrace();
+                }
+            }
+        });
+    }
+
     class RequestPersonalTourProposal extends OneShotBehaviour{
 
         @Override
         public void action() {
             //personal tour request(ptr)
             ACLMessage ptr = new ACLMessage(ACLMessage.CFP);
-            ptr.addReceiver(tourAgent);
+            ptr.addReceiver(tourAgent.get(r.nextInt(tourAgent.size())));
             try {
                 ptr.setContentObject(pi);
             } catch (IOException e) {

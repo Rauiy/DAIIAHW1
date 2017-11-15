@@ -109,6 +109,12 @@ public class CuratorAgent extends Agent {
 
             return reply;
         }
+
+        @Override
+        public int onEnd(){
+            reset();
+            return super.onEnd();
+        }
     }
 
     private class DetailedArtifactRequestHandler extends SimpleAchieveREResponder{
@@ -139,6 +145,12 @@ public class CuratorAgent extends Agent {
             }
 
             return reply;
+        }
+
+        @Override
+        public int onEnd(){
+            reset();
+            return super.onEnd();
         }
     }
 
