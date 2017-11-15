@@ -1,6 +1,9 @@
 import jade.core.AID;
 import jade.core.Agent;
 import jade.core.behaviours.CyclicBehaviour;
+import jade.core.behaviours.DataStore;
+import jade.core.behaviours.OneShotBehaviour;
+import jade.core.behaviours.SequentialBehaviour;
 import jade.domain.DFService;
 import jade.domain.FIPAAgentManagement.DFAgentDescription;
 import jade.domain.FIPAAgentManagement.ServiceDescription;
@@ -8,6 +11,8 @@ import jade.domain.FIPAException;
 import jade.lang.acl.ACLMessage;
 import jade.lang.acl.MessageTemplate;
 import jade.lang.acl.UnreadableException;
+import jade.proto.SimpleAchieveREInitiator;
+import jade.proto.states.MsgReceiver;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -18,27 +23,29 @@ import java.util.List;
  * Created by Steven on 2017-11-13.
  */
 public class TourAgent extends Agent {
-    private HashMap<Integer,List<Artifact>> tours;
     private AID curator;
+    private ACLMessage repMsg;
+    private ProfilerAgent.personalInfo pi;
+    private ArrayList<Artifact> artifacts;
 
     protected void setup() {
         System.out.println("Hallo, " + getLocalName() + " in tha house");
 
         registerAtDf();
-        /*
-        template = new DFAgentDescription();
-        sd = new ServiceDescription();
-        sd.setType("Artifact-provider");
-        template.addServices(sd);
+
+        MessageTemplate mt = MessageTemplate.MatchConversationId("Tour-provider");
+        curator = null;
 
         while(curator == null) {
-           // System.out.println(getLocalName() + ": No curator found...");
-            curator = ProfilerAgent.findAgents(this, template);
+            curator = ProfilerAgent.findAgents(this, "Artifact-provider");
         }
 
-        addBehaviour(new InterfaceServer());
-        */
-
+        SequentialBehaviour sb = new SequentialBehaviour();
+        sb.addSubBehaviour(new requestReceiver(this, mt, 10, null, null));
+        ACLMessage requestMsg = new ACLMessage(ACLMessage.REQUEST);
+        requestMsg.addReceiver(curator);
+        sb.addSubBehaviour(new artifactFetcher(this, requestMsg));
+        sb.addSubBehaviour(new buildTour());
     }
 
     public void registerAtDf(){
@@ -56,6 +63,82 @@ public class TourAgent extends Agent {
             fe.printStackTrace();
         }
     }
+
+    private class requestReceiver extends MsgReceiver{
+        public requestReceiver(Agent a, MessageTemplate mt, long deadline, DataStore s, Object msgKey) {
+            super(a, mt, deadline, s, msgKey);
+        }
+
+        protected void handleRequest(ACLMessage request) {
+            try {
+               pi = (ProfilerAgent.personalInfo) request.getContentObject();
+               repMsg = request.createReply();
+            } catch (UnreadableException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
+    private class artifactFetcher extends SimpleAchieveREInitiator{
+        public artifactFetcher(Agent a, ACLMessage msg) {
+            super(a, msg);
+        }
+
+        @Override
+        protected void handleInform(ACLMessage msg) {
+            try {
+                artifacts = (ArrayList<Artifact>) msg.getContentObject();
+            } catch (UnreadableException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
+    private class buildTour extends OneShotBehaviour {
+        public void action(){
+            int century;
+            ArrayList<String> artifactTour = new ArrayList<String>();
+            switch (pi.getAge()/10) {
+                case 0:
+                    System.out.println("Age 0-9");
+                    century = 2000;
+                    break;
+                case 1:
+                    System.out.println("Age 10-19");
+                    century = 1900;
+                    break;
+                case 2:
+                    System.out.println("Age 20-29");
+                    century = 1800;
+                    break;
+                case 3:
+                    System.out.println("Age 30-39");
+                    century = 1700;
+                    break;
+                case 4:
+                default:
+                    System.out.println("Age 40+");
+                    century = 1600;
+                    break;
+            }
+            for(int i = 0; i < artifacts.size(); i++) {
+                if(artifacts.get(i).getCenturyOfCreation() >= century
+                        && artifacts.get(i).getCenturyOfCreation() < century+100
+                        && artifacts.get(i).getGenre() == pi.getInterests() ){
+                    artifactTour.add(artifacts.get(i).getId());
+                }
+            }
+            try {
+                repMsg.setContentObject(artifactTour);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            myAgent.send(repMsg);
+        }
+    }
+
+
+
     /*
     private class InterfaceServer extends CyclicBehaviour {
         private ProfilerAgent.personalInfo personalInfo;
