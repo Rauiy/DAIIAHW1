@@ -17,20 +17,23 @@ import java.io.IOException;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
 
 public class ProfilerAgent extends Agent
 {
+    static Random r = new Random();
     class personalInfo implements Serializable{
         final private int age;
         final private String occupation;
         final private boolean gender;
         final private String interests;
+        private String[] genres = {"mountains","flowers","animals","lakes","plants","environment","cats","dogs"};
 
-        public personalInfo(int age, String occupation, boolean gender, String interests) {
-            this.age = age;
-            this.occupation = occupation;
-            this.gender = gender;
-            this.interests = interests;
+        public personalInfo() {
+            this.age = r.nextInt(100);
+            this.occupation = "Jobless";
+            this.gender = false;
+            this.interests = genres[r.nextInt(genres.length)];
         }
 
         public int getAge() {
@@ -69,37 +72,7 @@ public class ProfilerAgent extends Agent
     protected void setup()
     {
         System.out.println("Hello I am "+ getLocalName());
-
-
-        visited = new ArrayList<Artifact>();
-
-        Object[] args = getArguments();
-        int a = 21;
-        String o = "student";
-        boolean g = true; //True = male, false = female
-        String in = "mountains";
-        if(args != null){
-            int i = 0;
-            while(i < args.length){
-                String arg = (String) args[i];
-                if(arg.equals("-a")){
-                    i++;
-                    a = Integer.parseInt((String)args[i]);
-                }else if(arg.equals("-o")){
-                    i++;
-                    o = (String)args[i];
-                }else if(arg.equals("-g")){
-                    i++;
-                    g = Boolean.parseBoolean((String)args[i]);
-                }else if(arg.equals("-i")){
-                    i++;
-                    in = (String)args[i];
-                }
-                i++;
-            }
-        }
-
-        pi = new personalInfo(a, o, g, in);
+        pi = new personalInfo();
 
         System.out.println("Profiler initiated with info: " + pi.toString());
         addBehaviour(new TickerBehaviour(this, 10000) {
