@@ -33,19 +33,24 @@ public class TourAgent extends Agent {
 
         registerAtDf();
 
-        MessageTemplate mt = MessageTemplate.MatchConversationId("Tour-provider");
+        final MessageTemplate mt = MessageTemplate.MatchConversationId("Tour-provider");
         curator = null;
 
         while(curator == null) {
             curator = ProfilerAgent.findAgents(this, "Artifact-provider");
         }
+        addBehaviour(new CyclicBehaviour() {
+            @Override
+            public void action() {
+                SequentialBehaviour sb = new SequentialBehaviour();
+                sb.addSubBehaviour(new requestReceiver(myAgent, mt, 10, null, null));
+                ACLMessage requestMsg = new ACLMessage(ACLMessage.REQUEST);
+                requestMsg.addReceiver(curator);
+                sb.addSubBehaviour(new artifactFetcher(myAgent, requestMsg));
+                sb.addSubBehaviour(new buildTour());
+            }
+        });
 
-        SequentialBehaviour sb = new SequentialBehaviour();
-        sb.addSubBehaviour(new requestReceiver(this, mt, 10, null, null));
-        ACLMessage requestMsg = new ACLMessage(ACLMessage.REQUEST);
-        requestMsg.addReceiver(curator);
-        sb.addSubBehaviour(new artifactFetcher(this, requestMsg));
-        sb.addSubBehaviour(new buildTour());
     }
 
     public void registerAtDf(){
