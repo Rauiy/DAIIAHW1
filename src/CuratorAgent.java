@@ -27,7 +27,7 @@ public class CuratorAgent extends Agent {
     private CuratorGui myGui;
     private String[] genres = {"mountains","flowers","animals","lakes","plants","environment","cats","dogs"};
     protected void setup(){
-        System.out.println("Curator Agent initializing");
+        System.out.println("Hola! Curator Agent for your service");
         // Initiate ArtifactList
 
         artifactsList = new HashMap<String, Artifact>();

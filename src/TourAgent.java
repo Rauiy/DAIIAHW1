@@ -43,7 +43,7 @@ public class TourAgent extends Agent {
             @Override
             public void action() {
                 SequentialBehaviour sb = new SequentialBehaviour();
-                sb.addSubBehaviour(new requestReceiver(myAgent, mt, 10, null, null));
+                sb.addSubBehaviour(new requestReceiver(myAgent, mt, 20000, null, null));
                 ACLMessage requestMsg = new ACLMessage(ACLMessage.REQUEST);
                 requestMsg.addReceiver(curator);
                 sb.addSubBehaviour(new artifactFetcher(myAgent, requestMsg));

@@ -84,7 +84,6 @@ public class ProfilerAgent extends Agent
                 System.out.println(getLocalName() + ": Trying to get a personalized tour");
                 // Update the list of seller agents
 
-
                 //AID tmp = findAgents(myAgent, "Tour-provider");
 
                 if(tourAgent.isEmpty()) {
@@ -106,7 +105,7 @@ public class ProfilerAgent extends Agent
                 ACLMessage req = new ACLMessage(ACLMessage.REQUEST);
                 req.addReceiver(curatorAgent);
                 sb.addSubBehaviour(new RequestArtifactDetails(myAgent,req));
-                addBehaviour(sb);
+                myAgent.addBehaviour(sb);
             }
         });
     }
@@ -162,6 +161,7 @@ public class ProfilerAgent extends Agent
 
         @Override
         public void action() {
+            System.out.println("Requesting personal tour");
             //personal tour request(ptr)
             ACLMessage ptr = new ACLMessage(ACLMessage.CFP);
             ptr.addReceiver(tourAgent.get(r.nextInt(tourAgent.size())));
