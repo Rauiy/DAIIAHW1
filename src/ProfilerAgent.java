@@ -76,6 +76,7 @@ public class ProfilerAgent extends Agent
         System.out.println("Hello I am "+ getLocalName());
         pi = new personalInfo();
         tourAgent = new ArrayList<AID>();
+        visited = new ArrayList<Artifact>();
         subscribeForTourAgents(); // subscribe for tour agent service
         System.out.println("Profiler initiated with info: " + pi.toString());
         addBehaviour(new TickerBehaviour(this, 10000) {
@@ -86,6 +87,7 @@ public class ProfilerAgent extends Agent
 
                 //AID tmp = findAgents(myAgent, "Tour-provider");
 
+                pi = new personalInfo(); // Set new personality to get different articles
                 if(tourAgent.isEmpty()) {
                     System.out.println(getLocalName() + ": No tour guide found...");
                     return;
@@ -102,7 +104,7 @@ public class ProfilerAgent extends Agent
 
                 sb.addSubBehaviour(new RequestPersonalTourProposal());
 
-                ACLMessage req = new ACLMessage(ACLMessage.REQUEST);
+                ACLMessage req = new ACLMessage(ACLMessage.REQUEST_WHEN);
                 req.addReceiver(curatorAgent);
                 sb.addSubBehaviour(new RequestArtifactDetails(myAgent,req));
                 myAgent.addBehaviour(sb);
@@ -213,8 +215,9 @@ public class ProfilerAgent extends Agent
         protected void handleInform(ACLMessage msg){
             try {
                 artifacts = (ArrayList<Artifact>) msg.getContentObject();
-                for(Artifact a: artifacts)
+                for(Artifact a: artifacts) {
                     visited.add(a);
+                }
             } catch (UnreadableException e) {
                 e.printStackTrace();
             }

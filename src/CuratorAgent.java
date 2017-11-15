@@ -37,9 +37,9 @@ public class CuratorAgent extends Agent {
             @Override
             public void action() {
                 Random r = new Random();
-                for(int i = 0; i < 100; i++){
+                for(int i = 0; i < 1000; i++){
 
-                    updateArtifacts("name" + i, "creator" + i, r.nextInt(2000), "city"+i,genres[r.nextInt(genres.length)]);
+                    updateArtifacts("name" + i, "creator" + i, r.nextInt(400)+1600, "city"+i,genres[r.nextInt(genres.length)]);
                 }
             }
         });
@@ -128,7 +128,7 @@ public class CuratorAgent extends Agent {
             ArrayList<String> artifactIds = null;
 
             ACLMessage reply = request.createReply();
-            reply.setPerformative(ACLMessage.PROPOSE);
+            reply.setPerformative(ACLMessage.INFORM);
             try {
                 artifactIds = (ArrayList<String>) request.getContentObject();
                 ArrayList<Artifact> detailedList = new ArrayList();

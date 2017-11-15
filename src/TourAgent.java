@@ -33,7 +33,9 @@ public class TourAgent extends Agent {
 
         registerAtDf();
 
-        final MessageTemplate mt = MessageTemplate.MatchConversationId("Tour-provider");
+        final MessageTemplate mt = MessageTemplate.and(MessageTemplate.MatchConversationId("Tour-provider"),
+                MessageTemplate.MatchPerformative(ACLMessage.CFP));
+
         curator = null;
 
         while(curator == null) {
@@ -43,11 +45,13 @@ public class TourAgent extends Agent {
             @Override
             public void action() {
                 SequentialBehaviour sb = new SequentialBehaviour();
-                sb.addSubBehaviour(new requestReceiver(myAgent, mt, 20000, null, null));
+                sb.addSubBehaviour(new requestReceiver(myAgent, mt, Long.MAX_VALUE, null, null));
                 ACLMessage requestMsg = new ACLMessage(ACLMessage.REQUEST);
                 requestMsg.addReceiver(curator);
                 sb.addSubBehaviour(new artifactFetcher(myAgent, requestMsg));
                 sb.addSubBehaviour(new buildTour());
+
+                myAgent.addBehaviour(sb);
             }
         });
 
@@ -74,7 +78,8 @@ public class TourAgent extends Agent {
             super(a, mt, deadline, s, msgKey);
         }
 
-        protected void handleRequest(ACLMessage request) {
+        @Override
+        protected void handleMessage(ACLMessage request) {
             try {
                pi = (ProfilerAgent.personalInfo) request.getContentObject();
                repMsg = request.createReply();
@@ -126,18 +131,22 @@ public class TourAgent extends Agent {
                     century = 1600;
                     break;
             }
+
             for(int i = 0; i < artifacts.size(); i++) {
                 if(artifacts.get(i).getCenturyOfCreation() >= century
                         && artifacts.get(i).getCenturyOfCreation() < century+100
-                        && artifacts.get(i).getGenre() == pi.getInterests() ){
+                        && artifacts.get(i).getGenre().equals(pi.getInterests()) ){
+
                     artifactTour.add(artifacts.get(i).getId());
                 }
             }
+
             try {
                 repMsg.setContentObject(artifactTour);
             } catch (IOException e) {
                 e.printStackTrace();
             }
+            repMsg.setPerformative(ACLMessage.PROPOSE);
             myAgent.send(repMsg);
         }
     }
