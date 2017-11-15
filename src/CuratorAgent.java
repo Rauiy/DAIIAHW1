@@ -22,6 +22,7 @@ import java.util.*;
  */
 public class CuratorAgent extends Agent {
     private HashMap<String,Artifact> artifactsList;
+
     // The GUI by means of which the user can add books in the catalogue
     private CuratorGui myGui;
     private String[] genres = {"mountains","flowers","animals","lakes","plants","environment","cats","dogs"};
@@ -99,9 +100,9 @@ public class CuratorAgent extends Agent {
         @Override
         protected ACLMessage prepareResultNotification(ACLMessage request, ACLMessage response){
             ACLMessage reply = request.createReply();
-            reply.setPerformative(ACLMessage.PROPOSE);
+            reply.setPerformative(ACLMessage.INFORM);
             try {
-                reply.setContentObject(new ArrayList<String>(Arrays.asList(genres)));
+                reply.setContentObject(new ArrayList<Artifact>(artifactsList.values()));
             } catch (IOException e) {
                 e.printStackTrace();
             }
