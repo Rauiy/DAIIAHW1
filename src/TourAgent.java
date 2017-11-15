@@ -24,6 +24,24 @@ public class TourAgent extends Agent {
     protected void setup() {
         System.out.println("Hallo, " + getLocalName() + " in tha house");
 
+        registerAtDf();
+        /*
+        template = new DFAgentDescription();
+        sd = new ServiceDescription();
+        sd.setType("Artifact-provider");
+        template.addServices(sd);
+
+        while(curator == null) {
+           // System.out.println(getLocalName() + ": No curator found...");
+            curator = ProfilerAgent.findAgents(this, template);
+        }
+
+        addBehaviour(new InterfaceServer());
+        */
+
+    }
+
+    public void registerAtDf(){
         // Register the tour guide service in the yellow pages
         DFAgentDescription template = new DFAgentDescription();
         template.setName(getAID());
@@ -37,20 +55,8 @@ public class TourAgent extends Agent {
         catch (FIPAException fe) {
             fe.printStackTrace();
         }
-
-        template = new DFAgentDescription();
-        sd = new ServiceDescription();
-        sd.setType("Artifact-provider");
-        template.addServices(sd);
-
-        while(curator == null) {
-           // System.out.println(getLocalName() + ": No curator found...");
-            curator = ProfilerAgent.findAgents(this, template);
-        }
-
-        addBehaviour(new InterfaceServer());
     }
-
+    /*
     private class InterfaceServer extends CyclicBehaviour {
         private ProfilerAgent.personalInfo personalInfo;
         private MessageTemplate mt;
@@ -171,5 +177,5 @@ public class TourAgent extends Agent {
             }
         }
     }
-
+    */
 }
