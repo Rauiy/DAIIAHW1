@@ -219,7 +219,7 @@ public class ProfilerAgent extends Agent
             }
         }
     }
-
+    /*
     class TourRequester extends Behaviour {
         int step = 0;
         private MessageTemplate mt; // The template to receive replies
@@ -341,5 +341,6 @@ public class ProfilerAgent extends Agent
             return (step == 5);
         }
     }
+    */
 
 }
