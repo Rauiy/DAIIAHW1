@@ -16,10 +16,7 @@ import jdk.nashorn.internal.runtime.JSONFunctions;
 
 import java.io.IOException;
 import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Random;
-import java.util.Set;
+import java.util.*;
 
 public class ProfilerAgent extends Agent
 {
@@ -87,7 +84,7 @@ public class ProfilerAgent extends Agent
 
                 //AID tmp = findAgents(myAgent, "Tour-provider");
 
-                pi = new personalInfo(); // Set new personality to get different articles
+                //pi = new personalInfo(); // Set new personality to get different artifacts
                 if(tourAgent.isEmpty()) {
                     System.out.println(getLocalName() + ": No tour guide found...");
                     return;
@@ -115,18 +112,33 @@ public class ProfilerAgent extends Agent
     static public AID findAgents(Agent myAgent, String type) {
         AID tmp = null;
         DFAgentDescription template = new DFAgentDescription();
+        // to find the right service type imm
         ServiceDescription sd = new ServiceDescription();
         sd.setType(type);
         template.addServices(sd);
         try {
+            // To get all available services, don't define a template
             DFAgentDescription[] result = DFService.search(myAgent, template);
             // System.out.print("Found the following agents: ");
             // Should only exist one agent of each, so take the first one
-            if (result.length > 0) {
-                tmp = result[0].getName();
-                //   System.out.println(tmp);
-            } else
-                System.out.println("none");
+            if(result.length > 0){
+                tmp = result[0].getName(); // take the first agent with right service available
+            }
+
+            // If we get all services find one that matches the service we want
+            /*for(DFAgentDescription dfa: result){
+                Iterator<Object> services = dfa.getAllServices();
+                if(services.hasNext()){
+
+                    ServiceDescription sd = (ServiceDescription) services.next();
+                    if(sd.getType().equals(type)) {
+                        tmp = dfa.getName();
+                        break;
+                    }
+                }
+
+            }*/
+
         } catch (FIPAException fe) {
             fe.printStackTrace();
         }
@@ -215,7 +227,7 @@ public class ProfilerAgent extends Agent
         protected void handleInform(ACLMessage msg){
             try {
                 artifacts = (ArrayList<Artifact>) msg.getContentObject();
-                System.out.println("Got artifacts, putting to visited: ");
+                System.out.println("Got " + artifacts.size() + " artifacts, putting to visited: ");
                 for(Artifact a: artifacts) {
                     System.out.print(" " + a);
                     visited.add(a);
