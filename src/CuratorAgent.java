@@ -1,4 +1,3 @@
-
 import jade.core.Agent;
 import jade.core.behaviours.CyclicBehaviour;
 import jade.core.behaviours.OneShotBehaviour;
@@ -23,8 +22,6 @@ import java.util.*;
 public class CuratorAgent extends Agent {
     private HashMap<String,Artifact> artifactsList;
 
-    // The GUI by means of which the user can add books in the catalogue
-    private CuratorGui myGui;
     private String[] genres = {"mountains","flowers","animals","lakes","plants","environment","cats","dogs"};
     protected void setup(){
         System.out.println("Hola! Curator Agent for your service");
@@ -78,10 +75,8 @@ public class CuratorAgent extends Agent {
         catch (FIPAException fe) {
             fe.printStackTrace();
         }
-        // Close the GUI
-        myGui.dispose();
         // Printout a dismissal message
-        System.out.println("Seller-agent "+getAID().getName()+" terminating.");
+        System.out.println("Artifact-provider "+getAID().getName()+" terminating.");
     }
 
 
