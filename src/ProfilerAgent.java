@@ -215,9 +215,12 @@ public class ProfilerAgent extends Agent
         protected void handleInform(ACLMessage msg){
             try {
                 artifacts = (ArrayList<Artifact>) msg.getContentObject();
+                System.out.println("Got artifacts, putting to visited: ");
                 for(Artifact a: artifacts) {
+                    System.out.print(" " + a);
                     visited.add(a);
                 }
+                System.out.println();
             } catch (UnreadableException e) {
                 e.printStackTrace();
             }

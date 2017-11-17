@@ -32,24 +32,17 @@ public class CuratorAgent extends Agent {
 
         artifactsList = new HashMap<String, Artifact>();
 
-        SequentialBehaviour sb = new SequentialBehaviour();
-        sb.addSubBehaviour(new OneShotBehaviour() {
-            @Override
-            public void action() {
-                Random r = new Random();
-                for(int i = 0; i < 1000; i++){
+        Random r = new Random();
+        for(int i = 0; i < 1000; i++) {
 
-                    updateArtifacts("name" + i, "creator" + i, r.nextInt(400)+1600, "city"+i,genres[r.nextInt(genres.length)]);
-                }
-            }
-        });
+            updateArtifacts("name" + i, "creator" + i, r.nextInt(400) + 1600, "city" + i, genres[r.nextInt(genres.length)]);
+        }
 
         ParallelBehaviour pb = new ParallelBehaviour();
         pb.addSubBehaviour(new ArtifactRequestHandler(this,  MessageTemplate.MatchPerformative(ACLMessage.REQUEST)));
         pb.addSubBehaviour(new DetailedArtifactRequestHandler(this, MessageTemplate.MatchPerformative(ACLMessage.REQUEST_WHEN)));
-        sb.addSubBehaviour(pb);
 
-        addBehaviour(sb);
+        addBehaviour(pb);
 
         registerAtDF();
     }
